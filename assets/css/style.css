@@ -1,0 +1,190 @@
+/* ============================
+   E-TMotor — Custom Dark Theme
+   ============================ */
+
+:root {
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --bg-card: #161616;
+    --bg-card-hover: #1e1e1e;
+    --border-color: #262626;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #0c0c0c;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.navbar-custom {
+    background-color: #111111 !important;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+.navbar-custom .nav-link {
+    color: #a3a3a3;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.active {
+    color: #f5f5f5;
+}
+
+/* Accent button */
+.btn-accent {
+    background-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+    border: none;
+}
+.btn-accent:hover {
+    background-color: var(--accent-hover);
+    color: #000;
+}
+.btn-accent:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4);
+    color: #000;
+}
+.text-accent {
+    color: var(--accent) !important;
+}
+
+/* Cards */
+.card-custom {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: border-color 0.3s, transform 0.2s;
+}
+.card-custom:hover {
+    border-color: #333;
+    transform: translateY(-2px);
+}
+
+/* Form controls */
+.form-control, .form-select {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #f5f5f5;
+}
+.form-control:focus, .form-select:focus {
+    background-color: #1a1a1a;
+    border-color: var(--accent);
+    color: #f5f5f5;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+.form-control::placeholder {
+    color: #666;
+}
+
+/* Table */
+.table-custom {
+    --bs-table-bg: transparent;
+    --bs-table-color: #d4d4d4;
+    --bs-table-border-color: #262626;
+}
+.table-custom thead th {
+    color: #a3a3a3;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #333;
+}
+
+/* Badge fix for dark */
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* Slot buttons */
+.slot-btn {
+    min-width: 80px;
+    font-size: 0.85rem;
+}
+.slot-btn.available {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.slot-btn.available:hover,
+.slot-btn.available.active {
+    background-color: var(--accent);
+    color: #000;
+}
+.slot-btn.full {
+    border-color: #333;
+    color: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1207 50%, #0c0c0c 100%);
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+/* Section heading */
+.section-heading {
+    position: relative;
+    display: inline-block;
+}
+.section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+/* Notifikasi kritis */
+.alert-kritis {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Stok indicator dots */
+.stok-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.stok-dot.aman   { background: #22c55e; }
+.stok-dot.terbatas { background: #eab308; }
+.stok-dot.kritis { background: #ef4444; animation: pulse-dot 1.5s infinite; }
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .hero-section h1 { font-size: 1.8rem; }
+    .slot-btn { min-width: 65px; font-size: 0.78rem; }
+}
