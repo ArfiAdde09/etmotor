@@ -8,19 +8,19 @@ require_once __DIR__ . '/../includes/auth_check.php';
  $page_title = 'Riwayat Servis';
  $pelanggan = getPelangganByUser($pdo, $_SESSION['id_user']);
 
-// Ambil semua servis selesai milik pelanggan ini
- $stmt = $pdo->prepare("
-    SELECT s.*, r.tanggal, r.jam, m.plat_nomor, m.merk_tipe,
-           l.nama_layanan, l.estimasi_biaya
-    FROM servis s
-    JOIN reservasi r ON s.id_reservasi = r.id_reservasi
+// Ambil semua servis selesai & batal milik pelanggan ini
+$stmt = $pdo->prepare("
+    SELECT r.*, m.plat_nomor, m.merk_tipe, l.nama_layanan,
+           s.id_servis, s.total_biaya, s.status_bayar, s.metode_bayar, s.selesai_at, s.catatan_mekanik
+    FROM reservasi r
     JOIN motor m ON r.id_motor = m.id_motor
     JOIN layanan l ON r.id_layanan = l.id_layanan
-    WHERE r.id_pelanggan = ? AND s.status = 'selesai'
-    ORDER BY s.selesai_at DESC
+    LEFT JOIN servis s ON r.id_reservasi = s.id_reservasi
+    WHERE r.id_pelanggan = ? AND r.status IN ('selesai', 'batal')
+    ORDER BY r.tanggal DESC, r.jam DESC
 ");
- $stmt->execute([$pelanggan['id_pelanggan']]);
- $riwayat = $stmt->fetchAll();
+$stmt->execute([$pelanggan['id_pelanggan']]);
+$riwayat = $stmt->fetchAll();
 
 // Ambil detail parts
  $detailParts = [];
@@ -56,27 +56,31 @@ if (!empty($riwayat)) {
     <?php foreach ($riwayat as $r): ?>
     <div class="card-custom card p-4 mb-3">
         <div class="row align-items-start">
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <span class="small text-secondary">RSV-<?= $r['id_reservasi'] ?> &middot; <?= $r['tanggal'] ?> <?= substr($r['jam'], 0, 5) ?></span>
                 <h5 class="fw-semibold mb-1"><?= htmlspecialchars($r['nama_layanan']) ?></h5>
                 <p class="text-secondary small mb-2">
                     <i class="bi bi-bicycle me-1"></i><?= htmlspecialchars($r['plat_nomor'] . ' — ' . $r['merk_tipe']) ?>
                 </p>
-                <?php if ($r['catatan_mekanik']): ?>
+                <?php if ($r['status'] === 'selesai' && $r['catatan_mekanik']): ?>
                     <p class="small mb-0"><strong>Catatan Mekanik:</strong> <?= htmlspecialchars($r['catatan_mekanik']) ?></p>
                 <?php endif; ?>
             </div>
-            <div class="col-md-6 text-md-end">
-                <?= bayarBadge($r['status_bayar']) ?>
-                <?php if ($r['metode_bayar']): ?>
-                    <span class="badge bg-dark border border-secondary ms-1"><?= strtoupper(htmlspecialchars($r['metode_bayar'])) ?></span>
+            <div class="col-md-4 text-md-end">
+                <?php if ($r['status'] === 'selesai'): ?>
+                    <?= bayarBadge($r['status_bayar']) ?>
+                    <?php if ($r['metode_bayar']): ?>
+                        <span class="badge bg-dark border border-secondary ms-1"><?= strtoupper(htmlspecialchars($r['metode_bayar'])) ?></span>
+                    <?php endif; ?>
+                    <p class="text-accent fw-bold fs-5 mb-1 mt-1"><?= formatRupiah($r['total_biaya']) ?></p>
+                    <p class="text-secondary small mb-0">Selesai: <?= $r['selesai_at'] ? date('d/m/Y H:i', strtotime($r['selesai_at'])) : '-' ?></p>
+                <?php else: ?>
+                    <?= statusBadge($r['status']) ?>
                 <?php endif; ?>
-                <p class="text-accent fw-bold fs-5 mb-1 mt-1"><?= formatRupiah($r['total_biaya']) ?></p>
-                <p class="text-secondary small mb-0">Selesai: <?= $r['selesai_at'] ?></p>
             </div>
         </div>
 
-        <?php if (isset($detailParts[$r['id_servis']]) && !empty($detailParts[$r['id_servis']])): ?>
+        <?php if ($r['status'] === 'selesai' && isset($detailParts[$r['id_servis']]) && !empty($detailParts[$r['id_servis']])): ?>
         <hr class="border-secondary my-3">
         <h6 class="small text-secondary fw-semibold mb-2">Sparepart yang Dipakai:</h6>
         <div class="table-responsive">

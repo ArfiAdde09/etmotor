@@ -3,6 +3,17 @@ require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/functions.php';
 session_start();
 
+// --- START: Ensure 'Remap ECU' service exists ---
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM layanan WHERE nama_layanan = ?");
+$stmt->execute(['Remap ECU']);
+$serviceExists = $stmt->fetchColumn();
+
+if (!$serviceExists) {
+    $pdo->prepare("INSERT INTO layanan (nama_layanan, deskripsi, estimasi_biaya) VALUES (?, ?, ?)")
+        ->execute(['Remap ECU', 'Optimalkan kinerja mesin standar via software.', 300000]);
+}
+// --- END: Ensure 'Remap ECU' service exists ---
+
  $page_title = 'Beranda';
  $layanan = $pdo->query("SELECT * FROM layanan ORDER BY estimasi_biaya ASC")->fetchAll();
 ?>

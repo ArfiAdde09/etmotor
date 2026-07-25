@@ -266,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reser
             <div class="table-responsive">
                 <table class="table table-custom table-sm align-middle">
                     <thead>
-                        <tr><th>Antrean</th><th>Tanggal</th><th>Jam</th><th>Motor</th><th>Layanan</th><th>Status</th></tr>
+                        <tr><th>Antrean</th><th>Tanggal</th><th>Jam</th><th>Motor</th><th>Layahnan</th><th>Status</th><th>Aksi</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach ($reservasiAktif as $r): ?>
@@ -277,6 +277,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reser
                             <td><?= htmlspecialchars($r['plat_nomor'] . ' — ' . $r['merk_tipe']) ?></td>
                             <td><?= htmlspecialchars($r['nama_layanan']) ?></td>
                             <td><?= statusBadge($r['status']) ?></td>
+                            <td>
+                                <?php if ($r['status'] === 'menunggu'): ?>
+                                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" disabled title="Hubungi admin untuk membatalkan">
+                                        <i class="bi bi-x-lg"></i> Batal
+                                    </button>
+                                <?php else: ?>
+                                    <span class="text-secondary small">—</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
