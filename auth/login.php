@@ -7,14 +7,19 @@ if (isLoggedIn()) {
     redirect(BASE_URL . ($_SESSION['role'] === 'admin' ? 'admin/dashboard.php' : 'pelanggan/dashboard.php'));
 }
 
- $error = '';
+ $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if ($username === '' || $password === '') {
-        $error = 'Username dan password wajib diisi.';
-    } else {
+    if ($username === '') {
+        $errors[] = 'Username wajib diisi.';
+    }
+    if ($password === '') {
+        $errors[] = 'Password wajib diisi.';
+    }
+
+    if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
@@ -28,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             redirect(BASE_URL . ($user['role'] === 'admin' ? 'admin/dashboard.php' : 'pelanggan/dashboard.php'));
         } else {
-            $error = 'Username atau password salah.';
+            $errors[] = 'Username atau password salah.';
         }
     }
 }
@@ -43,8 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h3 class="fw-bold text-center mb-1">Login</h3>
             <p class="text-secondary text-center small mb-4">Masuk ke akun E-TMotor kamu</p>
 
-            <?php if ($error): ?>
-                <div class="alert alert-danger small"><?= htmlspecialchars($error) ?></div>
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0 small">
+                        <?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?>
+                    </ul>
+                </div>
             <?php endif; ?>
 
             <form method="POST" novalidate>

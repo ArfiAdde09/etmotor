@@ -12,12 +12,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const slotContainer = document.getElementById('slot_container');
     const jamInput = document.getElementById('jam_reservasi'); // hidden input
 
+    const serviceInput = document.getElementById('id_layanan');
+
     if (dateInput && slotContainer) {
+        const resetSlots = () => {
+            slotContainer.innerHTML = '<p class="text-secondary small">Pilih tanggal terlebih dahulu.</p>';
+            if (jamInput) jamInput.value = '';
+        };
+
         dateInput.addEventListener('change', function () {
             const tanggal = this.value;
             if (!tanggal) {
-                slotContainer.innerHTML = '<p class="text-secondary small">Pilih tanggal terlebih dahulu.</p>';
-                if (jamInput) jamInput.value = '';
+                resetSlots();
                 return;
             }
 
@@ -67,6 +73,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     slotContainer.innerHTML = '<p class="text-danger small">Gagal memuat slot. Coba lagi.</p>';
                 });
         });
+
+        if (serviceInput) {
+            serviceInput.addEventListener('change', resetSlots);
+        }
     }
 
     // =========================================

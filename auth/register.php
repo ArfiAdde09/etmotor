@@ -32,6 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($nama) < 2) {
         $errors[] = 'Nama lengkap wajib diisi.';
     }
+    if (empty($alamat)) {
+        $errors[] = 'Alamat wajib diisi.';
+    }
+    if (empty($no_hp)) {
+        $errors[] = 'No. HP wajib diisi.';
+    } elseif (!preg_match('/^[0-9]+$/', $no_hp)) {
+        $errors[] = 'No. HP hanya boleh berisi angka.';
+    } elseif (strlen($no_hp) < 10) {
+        $errors[] = 'No. HP minimal 10 digit.';
+    }
 
     // Cek username sudah ada
     if (empty($errors)) {

@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reser
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small">Pilih Layanan</label>
-                            <select name="id_layanan" class="form-select form-select-sm" required>
+                            <select name="id_layanan" id="id_layanan" class="form-select form-select-sm" required>
                                 <option value="">-- Pilih Layanan --</option>
                                 <?php foreach ($layanans as $l): ?>
                                     <option value="<?= $l['id_layanan'] ?>"><?= htmlspecialchars($l['nama_layanan']) ?> — <?= formatRupiah($l['estimasi_biaya']) ?></option>
