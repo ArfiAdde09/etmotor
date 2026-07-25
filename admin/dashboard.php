@@ -130,21 +130,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Data: antrean hari ini
- $today = date('Y-m-d');
- $stmt = $pdo->prepare("
-    SELECT r.*, p.nama, m.plat_nomor, m.merk_tipe, l.nama_layanan, l.estimasi_biaya,
-           s.id_servis, s.status AS status_servis
-    FROM reservasi r
-    JOIN pelanggan p ON r.id_pelanggan = p.id_pelanggan
-    JOIN motor m ON r.id_motor = m.id_motor
-    JOIN layanan l ON r.id_layanan = l.id_layanan
-    LEFT JOIN servis s ON r.id_reservasi = s.id_reservasi
-    WHERE r.tanggal = ? AND r.status != 'batal'
-    ORDER BY r.jam
+// Data: antrean 7 hari ke depan
+$today = date('Y-m-d');
+$week_later = date('Y-m-d', strtotime('+7 days'));
+$stmt = $pdo->prepare("
+   SELECT r.*, p.nama, m.plat_nomor, m.merk_tipe, l.nama_layanan, l.estimasi_biaya,
+          s.id_servis, s.status AS status_servis
+   FROM reservasi r
+   JOIN pelanggan p ON r.id_pelanggan = p.id_pelanggan
+   JOIN motor m ON r.id_motor = m.id_motor
+   JOIN layanan l ON r.id_layanan = l.id_layanan
+   LEFT JOIN servis s ON r.id_reservasi = s.id_reservasi
+   WHERE r.tanggal BETWEEN ? AND ? AND r.status != 'batal'
+   ORDER BY r.tanggal, r.jam
 ");
- $stmt->execute([$today]);
- $antrean = $stmt->fetchAll();
+$stmt->execute([$today, $week_later]);
+$antrean = $stmt->fetchAll();
 
 // Data: part kritis (untuk notifikasi)
  $kritisParts = $pdo->query("SELECT nama_part, stok FROM spareparts WHERE stok <= 2 ORDER BY stok ASC")->fetchAll();
@@ -160,7 +161,7 @@ foreach ($allParts as $ap) {
 <?php require_once __DIR__ . '/../includes/header.php'; ?>
 
 <h2 class="fw-bold mb-1">Dashboard Admin</h2>
-<p class="text-secondary small mb-4">Antrean hari ini: <?= date('d M Y', strtotime($today)) ?></p>
+<p class="text-secondary small mb-4">Antrean Minggu Ini (<?= date('d M', strtotime($today)) ?> — <?= date('d M Y', strtotime($week_later)) ?>)</p>
 
 <!-- Notifikasi stok kritis -->
 <?php if ($kritisParts): ?>
@@ -178,13 +179,14 @@ foreach ($allParts as $ap) {
 <!-- Tabel Antrean -->
 <div class="card-custom card p-4">
     <?php if (empty($antrean)): ?>
-        <p class="text-secondary text-center py-3 mb-0">Tidak ada antrean hari ini.</p>
+        <p class="text-secondary text-center py-3 mb-0">Tidak ada antrean untuk 7 hari ke depan.</p>
     <?php else: ?>
     <div class="table-responsive">
         <table class="table table-custom table-sm align-middle">
             <thead>
                 <tr>
                     <th>Antrean</th>
+                    <th>Tanggal</th>
                     <th>Jam</th>
                     <th>Pelanggan</th>
                     <th>Motor</th>
@@ -196,8 +198,9 @@ foreach ($allParts as $ap) {
             </thead>
             <tbody>
                 <?php foreach ($antrean as $a): ?>
-                <tr>
+                <tr class="<?= $a['tanggal'] === $today ? 'bg-today' : '' ?>">
                     <td><strong class="text-accent">RSV-<?= $a['id_reservasi'] ?></strong></td>
+                    <td><?= date('d/m/Y', strtotime($a['tanggal'])) ?></td>
                     <td><?= substr($a['jam'], 0, 5) ?></td>
                     <td><?= htmlspecialchars($a['nama']) ?></td>
                     <td><?= htmlspecialchars($a['plat_nomor']) ?><br><small class="text-secondary"><?= htmlspecialchars($a['merk_tipe']) ?></small></td>
@@ -209,7 +212,9 @@ foreach ($allParts as $ap) {
                             <form method="POST" class="d-inline">
                                 <input type="hidden" name="action" value="proses">
                                 <input type="hidden" name="id_reservasi" value="<?= $a['id_reservasi'] ?>">
-                                <button class="btn btn-info btn-sm py-0 px-2 text-dark" title="Proses"><i class="bi bi-play-fill me-1"></i>Proses</button>
+                                <button class="btn btn-info btn-sm py-0 px-2 text-dark" title="Proses" <?= ($a['tanggal'] === $today) ? '' : 'disabled' ?>>
+                                    <i class="bi bi-play-fill me-1"></i>Proses
+                                </button>
                             </form>
                             <form method="POST" class="d-inline" onsubmit="return confirm('Batalkan reservasi ini?')">
                                 <input type="hidden" name="action" value="batal">

@@ -292,6 +292,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reser
         <?php else: ?>
             <div class="row g-3">
                 <?php foreach ($tagihan as $t): ?>
+                <?php
+                // Ambil detail spare parts untuk servis ini
+                $parts_stmt = $pdo->prepare("
+                    SELECT dsp.jumlah, dsp.harga_satuan, sp.nama_part
+                    FROM detail_servis_part dsp
+                    JOIN spareparts sp ON dsp.id_part = sp.id_part
+                    WHERE dsp.id_servis = ?
+                ");
+                $parts_stmt->execute([$t['id_servis']]);
+                $parts = $parts_stmt->fetchAll();
+                ?>
                 <div class="col-md-6">
                     <div class="card-custom card p-4">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -302,7 +313,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reser
                             </div>
                             <?= bayarBadge($t['status_bayar']) ?>
                         </div>
-                        <p class="text-accent fw-bold fs-5 mb-3"><?= formatRupiah($t['total_biaya']) ?></p>
+
+                        <?php if (!empty($t['catatan_mekanik'])): ?>
+                            <div class="mb-3">
+                                <p class="small text-secondary mb-1">Catatan Mekanik:</p>
+                                <p class="small fst-italic bg-dark rounded p-2 mb-0">
+                                    <?= nl2br(htmlspecialchars($t['catatan_mekanik'])) ?>
+                                </p>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($parts)): ?>
+                            <div class="mb-3">
+                                <p class="small text-secondary mb-1">Spare Part Digunakan:</p>
+                                <ul class="list-group list-group-flush small">
+                                    <?php foreach ($parts as $p): ?>
+                                    <li class="list-group-item bg-transparent px-0 d-flex justify-content-between">
+                                        <span><?= htmlspecialchars($p['nama_part']) ?> (x<?= $p['jumlah'] ?>)</span>
+                                        <span class="text-secondary"><?= formatRupiah($p['harga_satuan'] * $p['jumlah']) ?></span>
+                                    </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <p class="text-accent fw-bold fs-5 mb-3">Total: <?= formatRupiah($t['total_biaya']) ?></p>
+                        
                         <div class="d-flex gap-2 align-items-center">
                             <select id="metode_<?= $t['id_servis'] ?>" class="form-select form-select-sm" style="max-width:160px;">
                                 <option value="">Pilih metode</option>

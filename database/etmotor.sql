@@ -88,7 +88,8 @@ INSERT INTO layanan (nama_layanan, deskripsi, estimasi_biaya) VALUES
 ('Servis Rutin (Ganti Oli)', 'Penggantian oli mesin berkala', 150000),
 ('Setting Dial Camshaft', 'Penyetelan ulang timing camshaft presisi', 250000),
 ('Tune Up Performa', 'Penyetelan performa mesin menyeluruh', 350000),
-('Bore Up', 'Modifikasi peningkatan kapasitas silinder', 1500000);
+('Bore Up', 'Modifikasi peningkatan kapasitas silinder', 1500000),
+('Remap ECU', 'remap ecu standar untuk mengoptimalkan kinerja mesin secara maksimal', 300000);
 
 INSERT INTO spareparts (kode_part, nama_part, kategori, stok, harga) VALUES
 ('PRT-001', 'Oli Mesin Motul 5100 1L', 'Cairan', 24, 85000),

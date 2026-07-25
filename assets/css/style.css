@@ -183,6 +183,10 @@ body {
     50% { opacity: 0.4; }
 }
 
+.table-custom tbody tr.bg-today {
+    background-color: rgba(245, 158, 11, 0.05);
+}
+
 /* Responsive tweaks */
 @media (max-width: 576px) {
     .hero-section h1 { font-size: 1.8rem; }
